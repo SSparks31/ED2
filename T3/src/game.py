@@ -27,6 +27,4 @@ def on_mouse_motion(x, y, dx, dy):
     cursor.position=(x-WIDTH//2, y-HEIGHT//2)
     cursor.draw()
 
-
-
 pyglet.app.run()
