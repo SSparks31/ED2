@@ -9,13 +9,12 @@
 #include "data.h"
 #include "svg.h"
 
-// Perguntar cor de fundo 
-void imprimeMBBs(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
-
-}
 
 void imprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
     shape_write_to_SVG(aux, data_get_shape(i));
+    // Shape bbox = rectangle_create(0, mbbX1 - 1, mbbY1 - 1, mbbX2 - mbbX1 + 1, mbbY2 - mbbY1 + 1, "red", "none", 1);
+    // shape_write_to_SVG(aux, bbox);
+    // shape_destroy(&bbox);
 }
 
 void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -32,7 +31,7 @@ void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     Shape new_circle = circle_create(id, x, y, r, border_color, fill_color, 0);
     Data fish = data_create(new_circle, 5);
-    insertSRB(shapes, x, y, x - r - 1, y - r - 1, x + r + 1, y + r + 1, fish);
+    insertSRB(shapes, x, y, x - r, y - r, x + r, y + r, fish);
 }
 
 void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -62,7 +61,7 @@ void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     }
 
     Data shrimp = data_create(new_line, 1);
-    insertBbSRB(shapes, x1 - 1, y1 - 1, x2 + 1, y2 + 1, shrimp);
+    insertBbSRB(shapes, x1, y1, x2, y2, shrimp);
 }
 
 void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -80,7 +79,7 @@ void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     Shape new_rectangle = rectangle_create(id, x, y, w, h, border_color, fill_color, 0);
     Data boat = data_create(new_rectangle, 0);
-    insertBbSRB(shapes, x - 1, y - 1, x + w + 1, y + h + 1, boat);
+    insertBbSRB(shapes, x, y, x + w, y + h, boat);
 }
 
 void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -126,7 +125,6 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
 
     FILE* geo_file = fopen(geo_path, "r");
 
-
     geo_name = strrchr(geo_path, '/') + 1;
     char* svg_path = calloc(1, strlen(BSD) + 1 + strlen(geo_name) + 1);
     if (BSD[strlen(BSD)-1] != '/') {
@@ -136,10 +134,11 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
     }    
     char* extension = strrchr(svg_path, '.');
     sprintf(extension + 1, "svg");
+    free(geo_path);
 
     FILE* svg_file = fopen(svg_path, "w");
     free(svg_path);
-    if (!svg_file) {
+    if (!svg_file) {    
         fclose(geo_file);
         return;
     }
@@ -173,12 +172,12 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
         }   
     }
 
-    percursoLargura(shapes, imprimeMBBs, svg_file);
     percursoLargura(shapes, imprimeFormas, svg_file);
 
     fprintf(svg_file, "</svg>");
 
-    free(geo_path);
+    sprintf(strrchr(svg_path, '.') + 1, "dot");
+    printSRB(shapes, svg_path);
 
     fclose(geo_file);
     fclose(svg_file);
