@@ -1,6 +1,10 @@
 #include "srbTree.h"
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
 
 typedef struct bbox {
     double x1;
@@ -38,16 +42,96 @@ SRBTree createSRB(double epsilon) {
         return NULL;
     }
 
-    tree->root = NIL;
+    tree->root = NULL;
     tree->epsilon = epsilon; 
 
     return tree;
 }
 
-void fixInsertion(SRBTree t, Node new_node) {
-    while (new_node->parent->color != BLACK) {
-        break;
+void rotateLeft(SRBTree tree, Node node) {
+    Node right = node->right;
+    node->right = right->left;
+
+    if (right->left != NULL) {
+        right->left->parent = node;
     }
+
+    right->parent = node->parent;
+
+    if (node == tree->root) {
+        tree->root = right;
+    } else if (node == node->parent->left) {
+        node->parent->left = right;
+    } else {
+        node->parent->right = right;
+    }
+
+    right->left = node;
+    node->parent = right;
+}
+
+void rotateRight(SRBTree tree, Node node) {
+    Node left = node->left;
+    node->left = left->right;
+
+    if (left->right != NULL) {
+        left->right->parent = node;
+    }
+
+    left->parent = node->parent;
+
+    if (node == tree->root) {
+        tree->root = left;
+    } else if (node == node->parent->right) {
+        node->parent->right = left;
+    } else {
+        node->parent->left = left;
+    }
+
+    left->right = node;
+    node->parent = left;
+}
+
+void fixInsertion(SRBTree t, Node node) {
+    Node uncle;
+		while (node != t->root && node->parent->color == RED) {
+			if (node->parent == node->parent->parent->right) {
+				uncle = node->parent->parent->left;
+				if (uncle && uncle->color == RED) {
+					uncle->color = BLACK;
+					node->parent->color = BLACK;
+					node->parent->parent->color = RED;
+					node = node->parent->parent;
+				} else {
+					if (node == node->parent->left) {
+						node = node->parent;
+						rotateRight(t, node);
+					}
+					node->parent->color = BLACK;
+					node->parent->parent->color = RED;
+					rotateLeft(t, node->parent->parent);
+				}
+			} else {
+				uncle = node->parent->parent->right;
+
+				if (uncle && uncle->color == RED) {
+					uncle->color = BLACK;
+					node->parent->color = BLACK;
+					node->parent->parent->color = RED;
+					node = node->parent->parent;	
+				} else {
+					if (node == node->parent->right) {
+						node = node->parent;
+						rotateLeft(t, node);
+					}
+					node->parent->color = BLACK;
+					node->parent->parent->color = RED;
+					rotateRight(t, node->parent->parent);
+				}
+			}
+
+		}
+		t->root->color = BLACK;
 }
 
 Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, SRBTree_elem info) {
@@ -70,10 +154,10 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
 
     new_node->elem = info;
 
-    new_node->left = NIL;
-    new_node->right = NIL;
+    new_node->left = NULL;
+    new_node->right = NULL;
 
-    if (t->root == NIL) {
+    if (t->root == NULL) {
         new_node->color = BLACK;
         new_node->parent = NULL;
         t->root = new_node;
@@ -88,16 +172,18 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
             }
 
             if (x < aux->x || (fabs(x - aux->x) < t->epsilon && y < aux->y)) {
-                if (aux->left == NIL) {
+                if (aux->left == NULL) {
                     new_node->parent = aux;
                     aux->left = new_node;
+                    break;
                 } else {
                     aux = aux->left;
                 }
             } else {
-                if (aux->right == NIL) {
+                if (aux->right == NULL) {
                     new_node->parent = aux;
                     aux->right = new_node;
+                    break;
                 } else {
                     aux = aux->right;
                 }
@@ -169,8 +255,50 @@ SRBTree_elem removeSRB(SRBTree t,double xa, double ya, double *mbbX1, double *mb
     //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 }
 
-void printSRB(SRBTree t, char *nomeArq) {
+void recursivePrintSRB(Node node, FILE* arq) {
+    if (!node) {
+        return;
+    }
 
+    char name[999];
+    char label[999];
+    sprintf(name, "node_%p", node);
+    sprintf(label, "x=%.4lf y=%.4lf", node->x, node->y);
+
+    fprintf(arq, "\t%s [fillcolor=%s fixedsize=shape label=\"%s\" width=2]\n", name, node->color == RED ? "red" : "black", label);
+
+    char name_left[999];
+    char name_right[999];
+    if (node->left == NULL) {
+        sprintf(name_left, "nilL_%p", node);
+        fprintf(arq, "\t%s [fillcolor=black fixedsize=shape label=\"NIL\" width=2]\n", name_left);
+    } else {
+        sprintf(name_left, "node_%p", node->left);
+    }
+    if (node->right == NULL) {
+        sprintf(name_right, "nilR_%p", node);
+        fprintf(arq, "\t%s [fillcolor=black fixedsize=shape label=\"NIL\" width=2]\n", name_right);
+    } else {
+        sprintf(name_right, "node_%p", node->right);
+    }
+    fprintf(arq, "\t%s -> %s [label=e] \n\t%s -> %s [label=d]\n\n", name, name_left, name, name_right);
+
+    recursivePrintSRB(node->left, arq);
+    recursivePrintSRB(node->right, arq);
+}
+
+void printSRB(SRBTree t, char *nomeArq) {
+    FILE* dot = fopen(nomeArq, "w");
+    fprintf(dot, "digraph G {\n");
+    fprintf(dot, "\tnode [margin=0 fontcolor=white fontsize=14 width=0.5 shape=box style=filled]\n");
+    fprintf(dot, "\tedge [fontcolor=grey fontsize=12]\n\n");
+
+    recursivePrintSRB(t->root, dot);
+    
+    
+
+    fprintf(dot, "}");
+    fclose(dot);
 }
 
 void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux) {
@@ -181,8 +309,17 @@ void percursoSimetrico(SRBTree t, FvisitaNo fVisita, void *aux) {
 
 }
 
-void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux) {
+void recursivoProfundidade(Node node, FvisitaNo fVisita, void* aux) {
+    if (node == NULL) {
+        return;
+    }
+    fVisita(node->elem, node->x, node->y, node->bbox.x1, node->bbox.x2, node->bbox.y1, node->bbox.y2, aux);
+    recursivoProfundidade(node->left, fVisita, aux);
+    recursivoProfundidade(node->right, fVisita, aux);
+}
 
+void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux) {
+    recursivoProfundidade(t->root, fVisita, aux);
 }
 
 void killSRBNodes(Node node) {

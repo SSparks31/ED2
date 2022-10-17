@@ -32,7 +32,6 @@ invalidos.
 typedef struct srbTree*  SRBTree; 
 typedef struct node* Node;
 typedef void* SRBTree_elem;
-#define NIL NULL
 
 typedef void (*FvisitaNo) (SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void *aux);
 /*
