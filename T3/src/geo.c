@@ -55,7 +55,7 @@ void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
         y1 = y2;
         y2 = aux;
     }
-    
+
     Data shrimp = data_create(new_line, 1);
     insertBbSRB(shapes, x1, y1, x2, y2, shrimp);
 }
@@ -103,7 +103,7 @@ void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
         data_set_value(item, 0.5);
     }
 
-    insertSRB(shapes, x, y, x - 0.5, y - 0.5, x + 0.5, y + 0.5, item);
+    insertSRB(shapes, x, y, x - strlen(text), y - 1, x + strlen(text), y + 1, item);
 }
 
 void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
