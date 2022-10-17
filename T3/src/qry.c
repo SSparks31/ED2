@@ -58,7 +58,7 @@ void qry_parser(char* BED, char* BSD, char* geo_name, char* qry_name, SRBTree sh
         } else if (strcmp(command, "lr") == 0) {
             
         } else if (strcmp(command, "d") == 0) {
-            
+            //Perguntar se canhão verifica colisão reta
         } else if (strcmp(command, "mc") == 0) {
             
         } else {

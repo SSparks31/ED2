@@ -367,6 +367,7 @@ void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux) {
     queue_destroy(&queue);
 }
 
+//Perguntar se é isso mesmo
 void recursivoSimetrico(Node node, FvisitaNo fVisita, void* aux) {
     if (node == NULL) {
         return;

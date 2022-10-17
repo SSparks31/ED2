@@ -9,10 +9,9 @@
 #include "data.h"
 #include "svg.h"
 
+// Perguntar cor de fundo 
 void imprimeMBBs(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
-    Shape MBB = rectangle_create(0, mbbX1, mbbY1, mbbX2 - mbbX1, mbbY2-mbbY1, "red", "none", 1);
-    shape_write_to_SVG(aux, MBB);
-    shape_destroy(&MBB);
+
 }
 
 void imprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
