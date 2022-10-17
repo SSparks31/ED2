@@ -9,6 +9,10 @@
 #include "data.h"
 #include "svg.h"
 
+void salvaLista(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
+    list_append(aux, i);
+}
+
 void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     int id;
 
@@ -39,6 +43,19 @@ void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     fscanf(geo_file, "%d %lf %lf %lf %lf %s\n", &id, &x1, &y1, &x2, &y2, border_color);
 
     Shape new_line = line_create(id, x1, y1, x2, y2, border_color, 1, 0);
+
+    if (x1 > x2) {
+        double aux = x1;
+        x1 = x2;
+        x2 = aux;
+    }
+
+    if (y1 > y2) {
+        double aux = y1;
+        y1 = y2;
+        y2 = aux;
+    }
+    
     Data shrimp = data_create(new_line, 1);
     insertBbSRB(shapes, x1, y1, x2, y2, shrimp);
 }
@@ -148,6 +165,14 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
                 printf("Algo deu errado ao ler os comandos do arquivo geo\n");
                 break;
         }   
+    }
+
+    List shapes_breadth = list_create();
+    percursoLargura(shapes, salvaLista, shapes_breadth);
+    List_pos aux;
+    while ((aux = list_get_first(shapes_breadth))) {
+        printf("%.2lf\n", data_get_value(list_get_elem(shapes_breadth, aux)));
+        list_remove(shapes_breadth, aux);
     }
 
     fprintf(svg_file, "</svg>");
