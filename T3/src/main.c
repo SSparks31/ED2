@@ -8,7 +8,7 @@
 #include "geo.h"
 #include "qry.h"
 
-#define DEGRADATION 0.5
+#define EPSILON 0.01
 
 int main(int argc, char* argv[]) {
     char option;
@@ -51,13 +51,13 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // XyyTree boats = xyytree_create(DEGRADATION);
+    SRBTree sea = srbTree(EPSILON);
     
-    geo_parser(BED, BSD, geo_name, boats);
+    geo_parser(BED, BSD, geo_name, sea);
 
-    qry_parser(BED, BSD, geo_name, qry_name, boats);
+    // qry_parser(BED, BSD, geo_name, qry_name, boats);
 
-    xyytree_destroy(&boats);
+    killSRB(sea);
 
     return 0;
 }
