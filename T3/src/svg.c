@@ -198,7 +198,7 @@ Shape line_create(int id, double x1, double y1, double x2, double y2, char* bord
     strcpy(new_line->border_color, border_color);
     new_line->border_width = border_width;
 
-    new_line->fill_color = NULL;
+    new_line->fill_color = new_line->border_color;
     
     new_line->is_dotted = is_dotted;
 
