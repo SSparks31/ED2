@@ -224,10 +224,6 @@ Node insertBbSRB(SRBTree t, double mbbX1, double mbbY1, double mbbX2, double mbb
     return insertSRB(t, mbbX1, mbbY1, mbbX1, mbbY1, mbbX2, mbbY2, info);
 }
 
-int intersect() {
-
-}
-
 void recursiveBbPartSRB(Node node, Shape outer_rect, Shape outer_points[4], List resultado) {
     if (!node) {
         return;
