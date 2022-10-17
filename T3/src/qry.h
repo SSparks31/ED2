@@ -1,9 +1,9 @@
-// #ifndef LIB_QRY_H
-// #define LIB_QRY_H
+#ifndef LIB_QRY_H
+#define LIB_QRY_H
 
-// // #include "xyytree.h"
+#include "srbTree.h"
 
-// /* Realiza todas as operações de leitura e interpretação dos arquivos .qry */
-// void qry_parser(char* BED, char* BSD, char* geo_name, char* qry_name, XyyTree shapes);
+/* Realiza todas as operações de leitura e interpretação dos arquivos .qry */
+void qry_parser(char* BED, char* BSD, char* geo_name, char* qry_name, SRBTree shapes);
 
-// #endif
+#endif
