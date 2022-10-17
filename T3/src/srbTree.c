@@ -175,7 +175,7 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
                 return NULL;
             }
 
-            if (x < aux->x || (fabs(x - aux->x) < t->epsilon && y < aux->y)) {
+            if (x < aux->x || ((fabs(x - aux->x) < t->epsilon && y < aux->y))) {
                 if (aux->left == NULL) {
                     new_node->parent = aux;
                     aux->left = new_node;
@@ -363,7 +363,7 @@ void recursivePrintSRB(Node node, FILE* arq) {
     } else {
         sprintf(name_right, "node_%p", node->right);
     }
-    fprintf(arq, "\t%s -> %s [label=e] \n\t%s -> %s [label=d]\n\n", name, name_left, name, name_right);
+    fprintf(arq, "\t%s -> %s [label=esquerda] \n\t%s -> %s [label=direita]\n\n", name, name_left, name, name_right);
 
     recursivePrintSRB(node->left, arq);
     recursivePrintSRB(node->right, arq);
