@@ -335,6 +335,8 @@ SRBTree_elem removeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *m
 //     free(aux);
 
 //     return elem;
+
+    return NULL;
 }
 
 void recursivePrintSRB(Node node, FILE* arq) {
