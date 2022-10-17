@@ -10,8 +10,7 @@
 #include "svg.h"
 
 void imprimeMBBs(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
-    char* color = shape_get_border_color(data_get_shape(i));
-    Shape MBB = rectangle_create(0, mbbX1, mbbY1, mbbX2 - mbbX1, mbbY2-mbbY1, "red", color, 1);
+    Shape MBB = rectangle_create(0, mbbX1, mbbY1, mbbX2 - mbbX1, mbbY2-mbbY1, "red", "none", 1);
     shape_write_to_SVG(aux, MBB);
     shape_destroy(&MBB);
 }
@@ -34,7 +33,7 @@ void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     Shape new_circle = circle_create(id, x, y, r, border_color, fill_color, 0);
     Data fish = data_create(new_circle, 5);
-    insertSRB(shapes, x, y, x - r, y - r, x + r, y + r, fish);
+    insertSRB(shapes, x, y, x - r - 1, y - r - 1, x + r + 1, y + r + 1, fish);
 }
 
 void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -64,7 +63,7 @@ void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     }
 
     Data shrimp = data_create(new_line, 1);
-    insertBbSRB(shapes, x1, y1, x2, y2, shrimp);
+    insertBbSRB(shapes, x1 - 1, y1 - 1, x2 + 1, y2 + 1, shrimp);
 }
 
 void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -82,7 +81,7 @@ void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     Shape new_rectangle = rectangle_create(id, x, y, w, h, border_color, fill_color, 0);
     Data boat = data_create(new_rectangle, 0);
-    insertBbSRB(shapes, x, y, x + w, y + h, boat);
+    insertBbSRB(shapes, x - 1, y - 1, x + w + 1, y + h + 1, boat);
 }
 
 void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -111,7 +110,7 @@ void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
         data_set_value(item, 0.5);
     }
 
-    insertSRB(shapes, x, y, x - strlen(text), y - 1, x + strlen(text), y + 1, item);
+    insertSRB(shapes, x, y, x - 3 * strlen(text), y - 7, x + 3 * strlen(text), y + 3, item);
 }
 
 void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
@@ -175,9 +174,8 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
         }   
     }
 
-    // percursoLargura(shapes, imprimeMBBs, svg_file);
+    percursoLargura(shapes, imprimeMBBs, svg_file);
     percursoLargura(shapes, imprimeFormas, svg_file);
-
 
     fprintf(svg_file, "</svg>");
 
