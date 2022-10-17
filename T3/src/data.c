@@ -1,5 +1,7 @@
 #include "./data.h"
 
+#include <stdlib.h>
+
 struct data {
     Shape shape;
     double value; // Energia para barcos, valor de incremento para outros
@@ -13,6 +15,8 @@ Data data_create(Shape shape, double value) {
 
     data->shape = shape;
     data->value = value;
+
+    return data;
 }
 
 Shape data_get_shape(Data data) {
