@@ -224,6 +224,10 @@ Node insertBbSRB(SRBTree t, double mbbX1, double mbbY1, double mbbX2, double mbb
     return insertSRB(t, mbbX1, mbbY1, mbbX1, mbbY1, mbbX2, mbbY2, info);
 }
 
+int intersect() {
+
+}
+
 void recursiveBbPartSRB(Node node, Shape outer_rect, Shape outer_points[4], List resultado) {
     if (!node) {
         return;
@@ -244,13 +248,20 @@ void recursiveBbPartSRB(Node node, Shape outer_rect, Shape outer_points[4], List
         shape_inside(node_rect, outer_points[0]) ||
         shape_inside(node_rect, outer_points[1]) ||
         shape_inside(node_rect, outer_points[2]) ||
-        shape_inside(node_rect, outer_points[3])
+        shape_inside(node_rect, outer_points[3]) ||
+        intersect()
     ) {
         list_append(resultado, node);
     }
 
+    double* coordinates = shape_get_coordinates(outer_rect);  
+    double x1 = coordinates[0];
+    double y1 = coordinates[1];
+    double x2 = coordinates[2] + x1;
+    double y2 = coordinates[3] + y1;
+
     recursiveBbPartSRB(node->left, outer_rect, outer_points, resultado);
-    recursiveBbPartSRB(node->right, outer_rect, outer_points, resultado);  
+    recursiveBbPartSRB(node->right, outer_rect, outer_points, resultado);
 }
 
 void getBbPartSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
@@ -269,8 +280,8 @@ void getBbPartSRB(SRBTree t, double x, double y, double w, double h, List result
     }
 }
 
-void recursiveBbSRB(Node node, Shape outer_rect, List resultado) {
-    if (!node) {
+void recursiveBbSRB(SRBTree t, Node node, Shape outer_rect, List resultado) {
+    if (!t || !node) {
         return;
     }
 
@@ -280,13 +291,25 @@ void recursiveBbSRB(Node node, Shape outer_rect, List resultado) {
     }
     shape_destroy(&node_rect);
 
-    recursiveBbSRB(node->left, outer_rect, resultado);
-    recursiveBbSRB(node->right, outer_rect, resultado);  
+    double* coordinates = shape_get_coordinates(outer_rect);  
+    double x1 = coordinates[0];
+    double y1 = coordinates[1];
+    double x2 = coordinates[2] + x1;
+    double y2 = coordinates[3] + y1;
+
+    if (node->x > x1 || (fabs(node->x - x1) < t->epsilon && node->y > y1)) {
+        recursiveBbSRB(t, node->left, outer_rect, resultado);
+    }
+
+    if (node->x < x2 || (fabs(node->x - x1) < t->epsilon && node->y < y2)) {
+        recursiveBbSRB(t, node->right, outer_rect, resultado);
+    }
+
 }
 
 void getBbSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
     Shape outer_rect = rectangle_create(0, x, y, w, h, "", "", 0);
-    recursiveBbSRB(t->root, outer_rect, resultado);
+    recursiveBbSRB(t, t->root, outer_rect, resultado);
     shape_destroy(&outer_rect);
 }
 
@@ -320,6 +343,11 @@ Node getNodeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *mbbY1, d
             *mbbY2 = aux->bbox.y2;
 
             return aux;
+        }
+        if (aux->x < xa || (fabs(aux->x - xa) < t->epsilon && aux->y < ya)) {
+            aux = aux->left;
+        } else {
+            aux = aux->right;
         }
     }
 
