@@ -41,6 +41,7 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
+
     if (!geo_name) {
         printf("Opcao `f` e obrigatoria\n");
         return -1;
@@ -56,10 +57,6 @@ int main(int argc, char* argv[]) {
     geo_parser(BED, BSD, geo_name, sea);
 
     // qry_parser(BED, BSD, geo_name, qry_name, boats);
-
-    // Perguntar nome do arquivo
-    // Perguntar se é um pro geo e um pro qry
-    printSRB(sea, "dot.gv");
 
     killSRB(sea);
 
