@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "svg.h"
 #include "queue.h"
 
 typedef struct bbox {
@@ -203,12 +204,70 @@ Node insertBbSRB(SRBTree t, double mbbX1, double mbbY1, double mbbX2, double mbb
     return insertSRB(t, mbbX1, mbbY1, mbbX1, mbbY1, mbbX2, mbbY2, info);
 }
 
-void getBbPartSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
+void recursiveBbPartSRB(Node node, Shape outer_rect, Shape outer_points[4], List resultado) {
+    if (!node) {
+        return;
+    }
 
+    Shape node_rect = rectangle_create(0, node->bbox.x1, node->bbox.y1, node->bbox.x2 - node->bbox.x1, node->bbox.y2 - node->bbox.y1, "", "", 0);
+    Shape node_points[4];
+    node_points[0] = point_create(0, node->bbox.x1, node->bbox.y1, "", "", 0);
+    node_points[1] = point_create(0, node->bbox.x1, node->bbox.y2, "", "", 0);
+    node_points[2] = point_create(0, node->bbox.x2, node->bbox.y1, "", "", 0);
+    node_points[3] = point_create(0, node->bbox.x2, node->bbox.y2, "", "", 0);
+    
+    if (
+        shape_inside(outer_rect, node_points[0]) ||
+        shape_inside(outer_rect, node_points[1]) ||
+        shape_inside(outer_rect, node_points[2]) ||
+        shape_inside(outer_rect, node_points[3]) ||
+        shape_inside(node_rect, outer_points[0]) ||
+        shape_inside(node_rect, outer_points[1]) ||
+        shape_inside(node_rect, outer_points[2]) ||
+        shape_inside(node_rect, outer_points[3])
+    ) {
+        list_append(resultado, node);
+    }
+
+    recursiveBbPartSRB(node->left, outer_rect, outer_points, resultado);
+    recursiveBbPartSRB(node->right, outer_rect, outer_points, resultado);  
+}
+
+void getBbPartSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
+    Shape outer_rect = rectangle_create(0, x, y, w, h, "", "", 0);
+    
+    Shape outer_points[4];
+    outer_points[0] = point_create(0, x, y, "", "", 0);
+    outer_points[1] = point_create(0, x + w, y, "", "", 0);
+    outer_points[2] = point_create(0, x, y + h, "", "", 0);
+    outer_points[3] = point_create(0, x + w, y + h, "", "", 0);
+    
+    recursiveBbPartSRB(t->root, outer_rect, outer_points, resultado);
+    shape_destroy(&outer_rect);
+    for (int i = 0; i < 4; ++i) {
+        shape_destroy(outer_points + i);
+    }
+}
+
+void recursiveBbSRB(Node node, Shape outer_rect, List resultado) {
+    if (!node) {
+        return;
+    }
+
+    Shape node_rect = rectangle_create(0, node->bbox.x1, node->bbox.y1, node->bbox.x2 - node->bbox.x1, node->bbox.y2 - node->bbox.y1, "", "", 0);
+    if (shape_inside(outer_rect, node_rect)) {
+        list_append(resultado, node);
+    }
+    shape_destroy(&node_rect);
+
+    recursiveBbSRB(node->left, outer_rect, resultado);
+    recursiveBbSRB(node->right, outer_rect, resultado);  
 }
 
 void getBbSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
-
+    Shape outer_rect = rectangle_create(0, x, y, w, h, "", "", 0);
+    recursiveBbSRB(t->root, outer_rect, resultado);
+    shape_destroy(&outer_rect);
 }
 
 SRBTree_elem getInfoSRB(SRBTree t, Node n, double *xa, double *ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
@@ -255,8 +314,27 @@ void updateInfoSRB(SRBTree t, Node n, SRBTree_elem i) {
     n->elem = i;
 }
 
-SRBTree_elem removeSRB(SRBTree t,double xa, double ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
-    //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+void fixDelete(SRBTree t, Node node) {
+
+}
+
+SRBTree_elem removeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
+//     if (!t) {
+//         return NULL;
+//     }
+
+//     Node aux = getNodeSRB(t, xa, ya, mbbX1, mbbY1, mbbX2, mbbY2);
+//     if (!aux) {
+//         return NULL;
+//     }
+
+    
+
+//     t->size--;
+//     SRBTree_elem elem = aux->elem;
+//     free(aux);
+
+//     return elem;
 }
 
 void recursivePrintSRB(Node node, FILE* arq) {
