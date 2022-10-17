@@ -57,6 +57,8 @@ int main(int argc, char* argv[]) {
 
     // qry_parser(BED, BSD, geo_name, qry_name, boats);
 
+    printSRB(sea, "dot.gv");
+
     killSRB(sea);
 
     return 0;
