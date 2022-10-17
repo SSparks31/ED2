@@ -7,14 +7,7 @@ ted: main.c list.o srbTree.o svg.o
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
 	
-PHONY: clean tedtest maintest
-
-test: testmain.c srbTree.o list.o
-	gcc -o testmain -g testmain.c srbTree.o list.o -lm
-	./testmain
-
-tedtest: ted
-	./ted -e ../testes-t2 -o ../Output -f esquadra-2-alet-25.geo -q esquadra-2-alet-25/003-bombs.qry 
+PHONY: clean
 
 clean:
 	-rm -rf *.o

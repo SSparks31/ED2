@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "queue.h"
 
 typedef struct bbox {
     double x1;
@@ -16,6 +17,7 @@ typedef struct bbox {
 struct srbTree {
     Node root;
     double epsilon;
+    int size;
 };
 
 struct node {
@@ -44,6 +46,7 @@ SRBTree createSRB(double epsilon) {
 
     tree->root = NULL;
     tree->epsilon = epsilon; 
+    tree->size = 0;
 
     return tree;
 }
@@ -192,6 +195,7 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
         fixInsertion(t, new_node);
     }
 
+    t->size++;
     return new_node;
 }
 
@@ -295,18 +299,37 @@ void printSRB(SRBTree t, char *nomeArq) {
 
     recursivePrintSRB(t->root, dot);
     
-    
-
     fprintf(dot, "}");
     fclose(dot);
 }
 
 void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux) {
+    Queue queue = queue_create(t->size);
+    queue_insert(queue, t->root);
 
+    while (!queue_is_empty(queue)) {
+        Node node = queue_remove(queue);
+
+        if (node->left) queue_insert(queue, node->left);
+        if (node->right) queue_insert(queue, node->right);
+
+        fVisita(node->elem, node->x, node->y, node->bbox.x1, node->bbox.y1, node->bbox.x2, node->bbox.y2, aux);
+    }
+
+    queue_destroy(&queue);
+}
+
+void recursivoProfundidade(Node node, FvisitaNo fVisita, void* aux) {
+    if (node == NULL) {
+        return;
+    }
+    recursivoProfundidade(node->left, fVisita, aux);
+    fVisita(node->elem, node->x, node->y, node->bbox.x1, node->bbox.x2, node->bbox.y1, node->bbox.y2, aux);
+    recursivoProfundidade(node->right, fVisita, aux);
 }
 
 void percursoSimetrico(SRBTree t, FvisitaNo fVisita, void *aux) {
-
+    recursivoSimetrico(t->root, fVisita, aux);
 }
 
 void recursivoProfundidade(Node node, FvisitaNo fVisita, void* aux) {
