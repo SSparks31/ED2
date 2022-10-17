@@ -224,13 +224,16 @@ Node insertBbSRB(SRBTree t, double mbbX1, double mbbY1, double mbbX2, double mbb
     return insertSRB(t, mbbX1, mbbY1, mbbX1, mbbY1, mbbX2, mbbY2, info);
 }
 
+void recursiveBbPartSRB(Node n, double x, double y, double x2, double y2, List resultado) {
+
+}
+
 void getBbPartSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
-    // Redo using Percurso
-    // https://www.geeksforgeeks.org/find-two-rectangles-overlap/
+    recursiveBbPartSRB(t->root, x, y, x + w, y + h, resultado);
 }
 
 void getBbSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
-    // Redo using Percurso
+
 }
 
 SRBTree_elem getInfoSRB(SRBTree t, Node n, double *xa, double *ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
@@ -367,7 +370,6 @@ void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux) {
     queue_destroy(&queue);
 }
 
-//Perguntar se é isso mesmo
 void recursivoSimetrico(Node node, FvisitaNo fVisita, void* aux) {
     if (node == NULL) {
         return;
