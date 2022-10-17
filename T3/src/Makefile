@@ -7,7 +7,10 @@ ted: main.c data.o geo.o list.o queue.o srbTree.o svg.o
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
 	
-PHONY: clean
+PHONY: clean test
+
+test: ted
+	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output
 
 clean:
 	-rm -rf *.o
