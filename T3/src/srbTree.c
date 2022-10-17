@@ -32,6 +32,7 @@ struct node {
     Node right;
 
     BBox bbox;
+    BBox nodes_bbox;
 };
 
 enum  {
@@ -156,6 +157,8 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
     new_node->bbox.x2 = mbbX2;
     new_node->bbox.y2 = mbbY2;
 
+    new_node->nodes_bbox = new_node->bbox;
+
     new_node->elem = info;
 
     new_node->left = NULL;
@@ -194,6 +197,23 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
             }
         }
         fixInsertion(t, new_node);
+    }
+
+    Node aux = new_node->parent;
+    while (aux) {
+        if (new_node->bbox.x1 < aux->nodes_bbox.x1) {
+            aux->nodes_bbox.x1 = new_node->bbox.x1;
+        }
+        if (new_node->bbox.y1 < aux->nodes_bbox.y1) {
+            aux->nodes_bbox.y1 = new_node->bbox.y1;
+        }
+        if (new_node->bbox.x2 > aux->nodes_bbox.x2) {
+            aux->nodes_bbox.x2 = new_node->bbox.x2;
+        }
+        if (new_node->bbox.y2 > aux->nodes_bbox.y2) {
+            aux->nodes_bbox.y2 = new_node->bbox.y2;
+        }
+        aux = aux->parent;
     }
 
     t->size++;
@@ -423,6 +443,17 @@ void recursivoProfundidade(Node node, FvisitaNo fVisita, void* aux) {
 
 void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux) {
     recursivoProfundidade(t->root, fVisita, aux);
+}
+
+void mbbNodes(SRBTree t, Node no, double* x1, double* y1, double* x2, double* y2) {
+    if (!t || !no) {
+        return;
+    }
+
+    *x1 = no->nodes_bbox.x1;
+    *y1 = no->nodes_bbox.y1;
+    *x2 = no->nodes_bbox.x2;
+    *y2 = no->nodes_bbox.y2;
 }
 
 void killSRBNodes(Node node) {

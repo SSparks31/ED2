@@ -33,6 +33,7 @@ typedef struct srbTree*  SRBTree;
 typedef struct node* Node;
 typedef void* SRBTree_elem;
 
+
 typedef void (*FvisitaNo) (SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void *aux);
 /*
  * Processa a informacao i associada a um no' da arvore, cuja ancora
@@ -117,6 +118,11 @@ void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux);
 void percursoSimetrico(SRBTree t, FvisitaNo fVisita, void *aux);
 
 void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux);
+
+/*
+  Retorna a mbb (minimum bounding box que engloba o nó e os nós de suas sub-árvores) de um dado nó
+*/
+void mbbNodes(SRBTree t, Node no, double* x1, double* y1, double* x2, double* y2);
 
 /*
   Desaloca todos os recursos usados pela arvore t.
