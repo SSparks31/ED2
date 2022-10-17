@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "srbTree.h"
+
+#include "data.h"
 #include "svg.h"
 
 void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -19,9 +22,8 @@ void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     fscanf(geo_file, "%d %lf %lf %lf %s %s\n", &id, &x, &y, &r, border_color, fill_color);
 
     Shape new_circle = circle_create(id, x, y, r, border_color, fill_color, 0);
-    Boat new_boat = boat_create(new_circle, 60);
-    xyytree_insert(shapes, x, y, new_boat);
-    shape_write_to_SVG(svg_file, new_circle);
+    Data fish = data_create(new_circle, 5);
+    insertSRB(shapes, x, y, x - r, y - r, x + r, y + r, fish);
 }
 
 void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -37,9 +39,8 @@ void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     fscanf(geo_file, "%d %lf %lf %lf %lf %s\n", &id, &x1, &y1, &x2, &y2, border_color);
 
     Shape new_line = line_create(id, x1, y1, x2, y2, border_color, 1, 0);
-    Boat new_boat = boat_create(new_line, 50);
-    xyytree_insert(shapes, x1, y1, new_boat);
-    shape_write_to_SVG(svg_file, new_line);
+    Data shrimp = data_create(new_line, 1);
+    insertBbSRB(shapes, x1, y1, x2, y2, shrimp);
 }
 
 void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -56,9 +57,8 @@ void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     fscanf(geo_file, "%d %lf %lf %lf %lf %s %s\n", &id, &x, &y, &w, &h, border_color, fill_color);
 
     Shape new_rectangle = rectangle_create(id, x, y, w, h, border_color, fill_color, 0);
-    Boat new_boat = boat_create(new_rectangle, 60);
-    xyytree_insert(shapes, x, y, new_boat);
-    shape_write_to_SVG(svg_file, new_rectangle);
+    Data boat = data_create(new_rectangle, 0);
+    insertBbSRB(shapes, x, y, x + w, y + h, boat);
 }
 
 void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -79,9 +79,14 @@ void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     text[strcspn(text, "\r\n")] = '\0';
 
     Shape new_text = text_create(id, x, y, 20, border_color, fill_color, alignment, text);
-    Boat new_boat = boat_create(new_text, 5);
-    xyytree_insert(shapes, x, y, new_boat);
-    shape_write_to_SVG(svg_file, new_text);
+    Data item = data_create(new_text, 0);
+    if (strcmp(text, ">-|-<") == 0) {
+        data_set_value(item, 20);
+    } else if (strcmp(text, "$") == 0) {
+        data_set_value(item, 0.5);
+    }
+
+    insertSRB(shapes, x, y, x - 0.5, y - 0.5, x + 0.5, y + 0.5, item);
 }
 
 void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
