@@ -1,1 +1,4 @@
 ./Testes/**
+./src/*.o
+./src/ted
+./Output/**
