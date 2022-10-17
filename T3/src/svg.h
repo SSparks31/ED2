@@ -53,6 +53,9 @@ int shape_is_dotted(Shape shape);
 /* Retorna o texto armazenado em `shape` */
 char* shape_get_text(Shape shape);
 
+/* Atualiza o texto de `shape` */
+void shape_set_text(Shape shape, char* text);
+
 /* Retorna a posição do texto de `shape` relativa à sua ancora */
 char shape_get_alignment(Shape shape);
 

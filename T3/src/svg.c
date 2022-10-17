@@ -110,6 +110,15 @@ char* shape_get_text(Shape shape) {
     return shape->text;
 }
 
+void shape_set_text(Shape shape, char* text) {
+    if (!shape || !text) {
+        return;
+    }
+
+    shape->text = realloc(shape->text, strlen(text) + 1);
+    strcpy(shape->text, text);
+}
+
 char shape_get_alignment(Shape shape) {
     if (!shape) {
         return '\0';
