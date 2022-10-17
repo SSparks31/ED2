@@ -32,7 +32,6 @@ struct node {
     Node right;
 
     BBox bbox;
-    BBox nodes_bbox;
 };
 
 enum  {
@@ -99,44 +98,44 @@ void rotateRight(SRBTree tree, Node node) {
 
 void fixInsertion(SRBTree t, Node node) {
     Node uncle;
-		while (node != t->root && node->parent->color == RED) {
-			if (node->parent == node->parent->parent->right) {
-				uncle = node->parent->parent->left;
-				if (uncle && uncle->color == RED) {
-					uncle->color = BLACK;
-					node->parent->color = BLACK;
-					node->parent->parent->color = RED;
-					node = node->parent->parent;
-				} else {
-					if (node == node->parent->left) {
-						node = node->parent;
-						rotateRight(t, node);
-					}
-					node->parent->color = BLACK;
-					node->parent->parent->color = RED;
-					rotateLeft(t, node->parent->parent);
-				}
-			} else {
-				uncle = node->parent->parent->right;
+    while (node != t->root && node->parent->color == RED) {
+        if (node->parent == node->parent->parent->right) {
+            uncle = node->parent->parent->left;
+            if (uncle && uncle->color == RED) {
+                uncle->color = BLACK;
+                node->parent->color = BLACK;
+                node->parent->parent->color = RED;
+                node = node->parent->parent;
+            } else {
+                if (node == node->parent->left) {
+                    node = node->parent;
+                    rotateRight(t, node);
+                }
+                node->parent->color = BLACK;
+                node->parent->parent->color = RED;
+                rotateLeft(t, node->parent->parent);
+            }
+        } else {
+            uncle = node->parent->parent->right;
 
-				if (uncle && uncle->color == RED) {
-					uncle->color = BLACK;
-					node->parent->color = BLACK;
-					node->parent->parent->color = RED;
-					node = node->parent->parent;	
-				} else {
-					if (node == node->parent->right) {
-						node = node->parent;
-						rotateLeft(t, node);
-					}
-					node->parent->color = BLACK;
-					node->parent->parent->color = RED;
-					rotateRight(t, node->parent->parent);
-				}
-			}
+            if (uncle && uncle->color == RED) {
+                uncle->color = BLACK;
+                node->parent->color = BLACK;
+                node->parent->parent->color = RED;
+                node = node->parent->parent;	
+            } else {
+                if (node == node->parent->right) {
+                    node = node->parent;
+                    rotateLeft(t, node);
+                }
+                node->parent->color = BLACK;
+                node->parent->parent->color = RED;
+                rotateRight(t, node->parent->parent);
+            }
+        }
 
-		}
-		t->root->color = BLACK;
+    }
+    t->root->color = BLACK;
 }
 
 Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, SRBTree_elem info) {
@@ -156,8 +155,6 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
     new_node->bbox.y1 = mbbY1;
     new_node->bbox.x2 = mbbX2;
     new_node->bbox.y2 = mbbY2;
-
-    new_node->nodes_bbox = new_node->bbox;
 
     new_node->elem = info;
 
@@ -199,23 +196,6 @@ Node insertSRB(SRBTree t, double x, double y, double mbbX1, double mbbY1, double
         fixInsertion(t, new_node);
     }
 
-    Node aux = new_node->parent;
-    while (aux) {
-        if (new_node->bbox.x1 < aux->nodes_bbox.x1) {
-            aux->nodes_bbox.x1 = new_node->bbox.x1;
-        }
-        if (new_node->bbox.y1 < aux->nodes_bbox.y1) {
-            aux->nodes_bbox.y1 = new_node->bbox.y1;
-        }
-        if (new_node->bbox.x2 > aux->nodes_bbox.x2) {
-            aux->nodes_bbox.x2 = new_node->bbox.x2;
-        }
-        if (new_node->bbox.y2 > aux->nodes_bbox.y2) {
-            aux->nodes_bbox.y2 = new_node->bbox.y2;
-        }
-        aux = aux->parent;
-    }
-
     t->size++;
     return new_node;
 }
@@ -225,15 +205,54 @@ Node insertBbSRB(SRBTree t, double mbbX1, double mbbY1, double mbbX2, double mbb
 }
 
 void recursiveBbPartSRB(Node n, double x, double y, double x2, double y2, List resultado) {
+    if (!n) {
+        return;
+    }
 
+    if (n->bbox.x1 > x2 || x > n->bbox.x2) {
+
+    } else if (n->bbox.y1 > y2 || y > n->bbox.y1) {
+
+    } else {
+        list_append(resultado, n);
+    }
+
+    recursiveBbPartSRB(n->left, x, y, x2, y2, resultado);
+    recursiveBbPartSRB(n->right, x, y, x2, y2, resultado);
 }
 
 void getBbPartSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
     recursiveBbPartSRB(t->root, x, y, x + w, y + h, resultado);
 }
 
-void getBbSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
+void recursiveBbSRB(SRBTree t, Node n, double x, double y, double w, double h, List resultado) {
+    if (!n) {
+        return;
+    }
 
+    Shape outer_rect = rectangle_create(0, x, y, w, h, "", "", 0);
+    Shape inside_rect = rectangle_create(0, n->bbox.x1, n->bbox.y1, n->bbox.x2 - n->bbox.x1, n->bbox.y2 - n->bbox.y1, "", "", 0);
+
+    if (shape_inside(outer_rect, inside_rect) == 1) {
+        list_append(resultado, n);
+    }
+
+    if (n->x < x || (fabs(n->x - x) < t->epsilon && n->y < y)) {
+        printf("Trimming left search at [%.2lf, %.2lf]\n", n->x, n->y);
+    } else {
+        recursiveBbSRB(t, n->left, x, y, w, h, resultado);
+    }
+
+    if (n->x > x + w || (fabs(n->x - (x + w)) < t->epsilon && n->y < y + h)) {
+        printf("Trimming right search at [%.2lf, %.2lf]\n", n->x, n->y);
+    } else {
+        recursiveBbSRB(t, n->right, x, y, w, h, resultado);
+    }
+
+}
+
+void getBbSRB(SRBTree t, double x, double y, double w, double h, List resultado) {
+    recursiveBbSRB(t, t->root, x, y, w, h, resultado);
 }
 
 SRBTree_elem getInfoSRB(SRBTree t, Node n, double *xa, double *ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
@@ -400,11 +419,6 @@ void mbbNodes(SRBTree t, Node no, double* x1, double* y1, double* x2, double* y2
     if (!t || !no) {
         return;
     }
-
-    *x1 = no->nodes_bbox.x1;
-    *y1 = no->nodes_bbox.y1;
-    *x2 = no->nodes_bbox.x2;
-    *y2 = no->nodes_bbox.y2;
 }
 
 void killSRBNodes(Node node) {
