@@ -319,13 +319,13 @@ void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux) {
     queue_destroy(&queue);
 }
 
-void recursivoProfundidade(Node node, FvisitaNo fVisita, void* aux) {
+void recursivoSimetrico(Node node, FvisitaNo fVisita, void* aux) {
     if (node == NULL) {
         return;
     }
-    recursivoProfundidade(node->left, fVisita, aux);
+    recursivoSimetrico(node->left, fVisita, aux);
     fVisita(node->elem, node->x, node->y, node->bbox.x1, node->bbox.x2, node->bbox.y1, node->bbox.y2, aux);
-    recursivoProfundidade(node->right, fVisita, aux);
+    recursivoSimetrico(node->right, fVisita, aux);
 }
 
 void percursoSimetrico(SRBTree t, FvisitaNo fVisita, void *aux) {
