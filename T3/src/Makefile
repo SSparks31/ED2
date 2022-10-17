@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99 -fstack-protector-all -Wall
 
-ted: main.c data.o geo.o list.o queue.o srbTree.o svg.o
+ted: main.c data.o geo.o qry.o list.o queue.o srbTree.o svg.o
 	$(CC) $(CFLAGS) -g -o $@ $^ -lm
 
 %.o: %.c %.h
