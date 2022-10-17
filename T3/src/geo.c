@@ -9,8 +9,15 @@
 #include "data.h"
 #include "svg.h"
 
-void salvaLista(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
-    list_append(aux, i);
+void imprimeMBBs(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
+    char* color = shape_get_border_color(data_get_shape(i));
+    Shape MBB = rectangle_create(0, mbbX1, mbbY1, mbbX2 - mbbX1, mbbY2-mbbY1, "red", color, 1);
+    shape_write_to_SVG(aux, MBB);
+    shape_destroy(&MBB);
+}
+
+void imprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
+    shape_write_to_SVG(aux, data_get_shape(i));
 }
 
 void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
@@ -95,9 +102,10 @@ void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     text[strcspn(text, "\r\n")] = '\0';
 
-    Shape new_text = text_create(id, x, y, 20, border_color, fill_color, alignment, text);
+    Shape new_text = text_create(id, x, y, 8, border_color, fill_color, alignment, text);
     Data item = data_create(new_text, 0);
     if (strcmp(text, ">-|-<") == 0) {
+        shape_set_text(new_text, "&gt;-|-&lt;");
         data_set_value(item, 20);
     } else if (strcmp(text, "$") == 0) {
         data_set_value(item, 0.5);
@@ -167,13 +175,9 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
         }   
     }
 
-    List shapes_breadth = list_create();
-    percursoLargura(shapes, salvaLista, shapes_breadth);
-    List_pos aux;
-    while ((aux = list_get_first(shapes_breadth))) {
-        printf("%.2lf\n", data_get_value(list_get_elem(shapes_breadth, aux)));
-        list_remove(shapes_breadth, aux);
-    }
+    // percursoLargura(shapes, imprimeMBBs, svg_file);
+    percursoLargura(shapes, imprimeFormas, svg_file);
+
 
     fprintf(svg_file, "</svg>");
 
