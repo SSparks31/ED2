@@ -8,7 +8,7 @@
 #include "geo.h"
 #include "qry.h"
 
-#define EPSILON 0.01
+#define EPSILON 0.00001
 
 int main(int argc, char* argv[]) {
     char option;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    SRBTree sea = srbTree(EPSILON);
+    SRBTree sea = createSRB(EPSILON);
     
     geo_parser(BED, BSD, geo_name, sea);
 
