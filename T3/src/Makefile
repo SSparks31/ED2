@@ -10,7 +10,7 @@ ted: main.c data.o geo.o qry.o list.o queue.o srbTree.o svg.o
 PHONY: clean test
 
 test: ted
-	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output
+	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output -q 01-mar-pequeno-1par-naus/01-mv1-001-cmr.qry
 
 clean:
 	-rm -rf *.o
