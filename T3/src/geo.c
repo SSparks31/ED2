@@ -118,11 +118,15 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
     }
 
     char geo_path[PATH_MAX];
-    sprintf(geo_path, "%s%s%s", BED, hasSlash(BED) ? "" : "/", geo_name);
+    sprintf(geo_path, "%s%s%s", BED, BED[strlen(BED) - 1] == '/' ? "" : "/", geo_name);
     FILE* geo_file = fopen(geo_path, "r");
 
+    if (strrchr(geo_name, '/')) {
+        geo_name = strrchr(geo_name, '/') + 1;
+    }
+
     char output_path[PATH_MAX];
-    sprintf(output_path, "%s%s%s", BSD, hasSlash(BSD) ? "" : "/", geo_name);
+    sprintf(output_path, "%s%s%s", BSD, BSD[strlen(BSD) - 1] == '/' ? "" : "/", geo_name);
 
     sprintf(strrchr(output_path, '.'), ".svg");
     FILE* svg_file = fopen(output_path, "w");
