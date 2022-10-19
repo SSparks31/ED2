@@ -56,8 +56,10 @@ int main(int argc, char* argv[]) {
     
     geo_parser(BED, BSD, geo_name, sea);
 
-    qry_parser(BED, BSD, geo_name, qry_name, sea);
-
+    if (qry_name) {
+        qry_parser(BED, BSD, geo_name, qry_name, sea);
+    }
+    
     killSRB(sea);
 
     return 0;
