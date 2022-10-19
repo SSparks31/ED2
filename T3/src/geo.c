@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <linux/limits.h>
 
 #include "srbTree.h"
 
@@ -112,37 +113,19 @@ void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 }
 
 void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
-    if (!BED || strlen(BED) == 0 || !BSD || strlen(BSD) == 0 || !geo_name || strlen(geo_name) == 0 || !shapes) {
+    if (!shapes) {
         return;
     }
 
-    char* geo_path = calloc(1, strlen(BED) + 1 + strlen(geo_name) + 1);
-    if (BED[strlen(BED)-1] != '/') {
-        sprintf(geo_path, "%s/%s", BED, geo_name);
-    } else {
-        sprintf(geo_path, "%s%s", BED, geo_name);
-    }
-
+    char geo_path[PATH_MAX];
+    sprintf(geo_path, "%s%s%s", BED, hasSlash(BED) ? "" : "/", geo_name);
     FILE* geo_file = fopen(geo_path, "r");
 
-    geo_name = strrchr(geo_path, '/') + 1;
-    char* svg_path = calloc(1, strlen(BSD) + 1 + strlen(geo_name) + 1);
-    if (BSD[strlen(BSD)-1] != '/') {
-        sprintf(svg_path, "%s/%s", BSD, geo_name);
-    } else {
-        sprintf(svg_path, "%s%s", BSD, geo_name);
-    }    
-    char* extension = strrchr(svg_path, '.');
-    sprintf(extension + 1, "svg");
-    free(geo_path);
+    char output_path[PATH_MAX];
+    sprintf(output_path, "%s%s%s", BSD, hasSlash(BSD) ? "" : "/", geo_name);
 
-    FILE* svg_file = fopen(svg_path, "w");
-    free(svg_path);
-    if (!svg_file) {    
-        fclose(geo_file);
-        return;
-    }
-
+    sprintf(strrchr(output_path, '.'), ".svg");
+    FILE* svg_file = fopen(output_path, "w");
     fprintf(svg_file, "<svg xmlns=\"http://www.w3.org/2000/svg\">\n");
 
     char command, buffer[999];
@@ -176,8 +159,8 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
 
     fprintf(svg_file, "</svg>");
 
-    sprintf(strrchr(svg_path, '.') + 1, "dot");
-    printSRB(shapes, svg_path);
+    sprintf(strrchr(output_path, '.'), ".dot");
+    printSRB(shapes, output_path);
 
     fclose(geo_file);
     fclose(svg_file);
