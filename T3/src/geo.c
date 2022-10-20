@@ -18,7 +18,7 @@ void imprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY
     // shape_destroy(&bbox);
 }
 
-void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
+void c(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     int id;
 
     double x;
@@ -32,10 +32,10 @@ void c(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     Shape new_circle = circle_create(id, x, y, r, border_color, fill_color, 0);
     Data fish = data_create(new_circle, 5);
-    insertSRB(shapes, x, y, x - r, y - r, x + r, y + r, fish);
+    insertSRB(sea, x, y, x - r, y - r, x + r, y + r, fish);
 }
 
-void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
+void l(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     int id;
 
     double x1;
@@ -62,10 +62,10 @@ void l(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
     }
 
     Data shrimp = data_create(new_line, 1);
-    insertBbSRB(shapes, x1, y1, x2, y2, shrimp);
+    insertBbSRB(sea, x1, y1, x2, y2, shrimp);
 }
 
-void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
+void r(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     int id;
 
     double x;
@@ -80,10 +80,10 @@ void r(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
 
     Shape new_rectangle = rectangle_create(id, x, y, w, h, border_color, fill_color, 0);
     Data boat = data_create(new_rectangle, 0);
-    insertBbSRB(shapes, x, y, x + w, y + h, boat);
+    insertBbSRB(sea, x, y, x + w, y + h, boat);
 }
 
-void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
+void t(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     int id;
 
     double x;
@@ -109,11 +109,11 @@ void t(SRBTree shapes, FILE* geo_file, FILE* svg_file) {
         data_set_value(item, 0.5);
     }
 
-    insertSRB(shapes, x, y, x - 3 * strlen(text), y - 7, x + 3 * strlen(text), y + 3, item);
+    insertSRB(sea, x, y, x - 3 * strlen(text), y - 7, x + 3 * strlen(text), y + 3, item);
 }
 
-void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
-    if (!shapes) {
+void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree sea) {
+    if (!sea) {
         return;
     }
 
@@ -137,19 +137,19 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
     while (fscanf(geo_file, "%c ", &command) != EOF) {
         switch (command) {
             case 'c':
-                c(shapes, geo_file, svg_file);
+                c(sea, geo_file, svg_file);
                 break;
 
             case 'l':
-                l(shapes, geo_file, svg_file);
+                l(sea, geo_file, svg_file);
                 break;
 
             case 'r':
-                r(shapes, geo_file, svg_file);
+                r(sea, geo_file, svg_file);
                 break;
 
             case 't':
-                t(shapes, geo_file, svg_file);
+                t(sea, geo_file, svg_file);
                 break;
 
             default:
@@ -159,12 +159,12 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree shapes) {
         }   
     }
 
-    percursoLargura(shapes, imprimeFormas, svg_file);
+    percursoLargura(sea, imprimeFormas, svg_file);
 
     fprintf(svg_file, "</svg>");
 
     sprintf(strrchr(output_path, '.'), ".dot");
-    printSRB(shapes, output_path);
+    printSRB(sea, output_path);
 
     fclose(geo_file);
     fclose(svg_file);
