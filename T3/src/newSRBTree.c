@@ -405,7 +405,23 @@ void percursoSimetrico(SRBTree t, FvisitaNo fVisita, void *aux) {
     recursivoSimetrico(t, t->root, fVisita, aux);
 }
 
-void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux);
+void recursivoProfundidade(SRBTree t, Node n, FvisitaNo fVisita, void *aux) {
+    if (n == t->NIL) {
+        return;
+    }
+
+    fVisita(n->elem, n->x, n->y, n->mbb.x1, n->mbb.y1, n->mbb.x2, n->mbb.y2, aux);
+    recursivoProfundidade(t, n->left, fVisita, aux);
+    recursivoProfundidade(t, n->right, fVisita, aux);
+}
+
+void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux) {
+        if (!t || !fVisita || t->root == t->NIL) {
+        return;
+    }
+
+    recursivoProfundidade(t, t->root, fVisita, aux);
+}
 
 void mbbNodes(SRBTree t, Node no, double* x1, double* y1, double* x2, double* y2);
 
