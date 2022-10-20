@@ -7,10 +7,14 @@ ted: main.c data.o geo.o qry.o list.o queue.o srbTree.o svg.o
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
 	
-PHONY: clean test
+.PHONY: clean test testmain
 
 test: ted
 	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output -q 01-mar-pequeno-1par-naus/01-mv1-001-cmr.qry
+
+testmain: testmain.c srbTree.o queue.o svg.o list.o
+	$(CC) $(CFLAGS) -g -o $@ $^ -lm
+	./testmain
 
 clean:
 	-rm -rf *.o
