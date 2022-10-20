@@ -12,7 +12,7 @@ ted: main.c data.o geo.o qry.o list.o queue.o srbTree.o svg.o
 test: ted
 	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output -q 01-mar-pequeno-1par-naus/01-mv1-001-cmr.qry
 
-testmain: testmain.c newSRBTree.o list.o
+testmain: testmain.c srbTree.o list.o
 	$(CC) $(CFLAGS) -g -o $@ $^ -lm
 	./testmain
 
