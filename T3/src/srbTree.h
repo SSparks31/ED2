@@ -120,11 +120,6 @@ void percursoSimetrico(SRBTree t, FvisitaNo fVisita, void *aux);
 void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux);
 
 /*
-  Retorna a mbb (minimum bounding box que engloba o nó e os nós de suas sub-árvores) de um dado nó
-*/
-void mbbNodes(SRBTree t, Node no, double* x1, double* y1, double* x2, double* y2);
-
-/*
   Desaloca todos os recursos usados pela arvore t.
  */
 void killSRB(SRBTree t);
