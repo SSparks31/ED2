@@ -304,29 +304,8 @@ void updateInfoSRB(SRBTree t, Node n, SRBTree_elem i) {
     n->elem = i;
 }
 
-void fixDelete(SRBTree t, Node node) {
-
-}
-
-SRBTree_elem removeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
-//     if (!t) {
-//         return NULL;
-//     }
-
-//     Node aux = getNodeSRB(t, xa, ya, mbbX1, mbbY1, mbbX2, mbbY2);
-//     if (!aux) {
-//         return NULL;
-//     }
-
+SRBTree_elem removeSRB(SRBTree t,double xa, double ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
     
-
-//     t->size--;
-//     SRBTree_elem elem = aux->elem;
-//     free(aux);
-
-//     return elem;
-
-    return NULL;
 }
 
 void recursivePrintSRB(Node node, FILE* arq) {
