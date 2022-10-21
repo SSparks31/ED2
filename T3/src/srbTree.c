@@ -272,12 +272,12 @@ SRBTree_elem getInfoSRB(SRBTree t, Node n, double *xa, double *ya, double *mbbX1
         return NULL;
     }
 
-    *xa = n->x;
-    *ya = n->y;
-    *mbbX1 = n->mbb.x1;
-    *mbbY1 = n->mbb.y1;
-    *mbbX2 = n->mbb.x2;
-    *mbbY2 = n->mbb.y2;
+    if (xa) *xa = n->x;
+    if (ya) *ya = n->y;
+    if (mbbX1) *mbbX1 = n->mbb.x1;
+    if (mbbY1) *mbbY1 = n->mbb.y1;
+    if (mbbX2) *mbbX2 = n->mbb.x2;
+    if (mbbY2) *mbbY2 = n->mbb.y2;
 
     return n->elem;
 }
@@ -299,6 +299,11 @@ Node getNodeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *mbbY1, d
             n = n->right;
         }
     }
+
+    if (mbbX1) *mbbX1 = n->mbb.x1;
+    if (mbbY1) *mbbY1 = n->mbb.y1;
+    if (mbbX2) *mbbX2 = n->mbb.x2;
+    if (mbbY2) *mbbY2 = n->mbb.y2;
     return n;    
 }
 
@@ -310,116 +315,9 @@ void updateInfoSRB(SRBTree t, Node n, SRBTree_elem i) {
     n->elem = i;
 }
 
-void transplantSRB(SRBTree t, Node u, Node v) {
-    if (u->parent == t->NIL) {
-        t->root = v;
-    } else if (u == u->parent->left) {
-        u->parent->left = v;
-    } else {
-        u->parent->right = v;
-    }
+SRBTree_elem removeSRB(SRBTree t,double xa, double ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
 
-    v->parent = u->parent;
-}
-
-void fixDelete(SRBTree t, Node x) {
-    while (x != t->root && x->color == BLACK) {
-        if (x == x->parent->left) {
-            Node w = x->parent->right;
-            if (w->color == RED) {
-                w->color = BLACK;
-                x->parent->color = RED;
-                rotateLeft(t, x->parent);
-                w = x->parent->right;
-            }
-            if (w->left->color == BLACK && w->right->color == BLACK) {
-                w->color = RED;
-                x = x->parent;
-            } else {
-                if (w->right->color == BLACK) {
-                    w->left->color = BLACK;
-                    w->color = RED;
-                    rotateRight(t, w);
-                    w = x->parent->right;
-                }
-                w->color = x->parent->color;
-                x->parent->color = BLACK;
-                w->right->color = BLACK;
-                rotateLeft(t, x->parent);
-                x = t->root;
-            }
-        } else {
-            Node w = x->parent->left;
-            if (w->color == RED) {
-                w->color = BLACK;
-                x->parent->color = RED;
-                rotateRight(t, x->parent);
-                w = x->parent->left;
-            }
-            if (w->left->color == BLACK && w->right->color == BLACK) {
-                w->color = RED;
-                x = x->parent;
-            } else {
-                if (w->left->color == BLACK) {
-                    w->right->color = BLACK;
-                    w->color = RED;
-                    rotateLeft(t, w);
-                    w = x->parent->left;
-                }
-                w->color = x->parent->color;
-                x->parent->color = BLACK;
-                w->left->color = BLACK;
-                rotateRight(t, x->parent);
-                x = t->root;
-            }
-        }
-    }
-
-    x->color = BLACK;
-}
-
-SRBTree_elem removeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *mbbY1, double *mbbX2, double *mbbY2) {
-    Node z = getNodeSRB(t, xa, ya, mbbX1, mbbY1, mbbX2, mbbY2);
-    if (!z) {
-        return NULL;
-    }
-
-    SRBTree_elem elem = z->elem;
-
-    Node x;
-    Node y = z;
-    int y_color = y->color;
-    if (z->left == t->NIL) {
-        x = z->right;
-        transplantSRB(t, z, z->right);
-    } else if (z->right == t->NIL) {
-        x = z->left;
-        transplantSRB(t, z, z->left);
-    } else {
-        y = z->right;
-        while (y->left != t->NIL) {
-            y = y->left;
-        }
-        y_color = y->color;
-        x = y->right;
-        if (y->parent == z) {
-            x->parent = z;
-        } else {
-            transplantSRB(t, y, y->right);
-            y->right = z->right;
-            y->right->parent = y;
-        }
-        transplantSRB(t, z, y);
-        y->left = z->left;
-        y->left->parent = y;
-        y->color = z->color;
-    }
-
-    if (y_color == BLACK) {
-        fixDelete(t, x);
-    }
-
-    return elem;
+    return NULL;
 }
 
 void recursivePrintNodesSRB(SRBTree t, Node n, FILE* arq) {
@@ -429,7 +327,7 @@ void recursivePrintNodesSRB(SRBTree t, Node n, FILE* arq) {
         fprintf(arq, "\tnilL_%p [fillcolor=black fixedsize=shape label=\"NIL\" width=2]\n", n);
     }
 
-    fprintf(arq, "\tnode_%p [fillcolor=%s fixedsize=shape label=\"x=%.4lf\\ny=%.4lf\" width=2]\n", n, n->color == RED ? "red" : "black", n->x, n->y);   
+    fprintf(arq, "\tnode_%p [fillcolor=%s fixedsize=shape label=\"x=%.2lf\\ny=%.2lf\" width=2]\n", n, n->color == RED ? "red" : "black", n->x, n->y);   
 
     if (n->right != t->NIL) {
         recursivePrintNodesSRB(t, n->right, arq);

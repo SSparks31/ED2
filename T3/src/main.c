@@ -10,6 +10,11 @@
 
 #define EPSILON 0.00001
 
+void destroy_data(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void *aux) {
+    Shape s = i;
+    shape_destroy(&s);
+}
+
 int main(int argc, char* argv[]) {
     char option;
     
@@ -56,10 +61,11 @@ int main(int argc, char* argv[]) {
     
     geo_parser(BED, BSD, geo_name, sea);
 
-    if (qry_name) {
-        qry_parser(BED, BSD, geo_name, qry_name, sea);
-    }
+    // if (qry_name) {
+    //     qry_parser(BED, BSD, geo_name, qry_name, sea);
+    // }
     
+    percursoSimetrico(sea, destroy_data, NULL);
     killSRB(sea);
 
     return 0;

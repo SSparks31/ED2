@@ -7,12 +7,11 @@
 
 #include "srbTree.h"
 
-#include "data.h"
 #include "svg.h"
 
 
 void geoImprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
-    shape_write_to_SVG(aux, data_get_shape(i));
+    shape_write_to_SVG(aux,i);
     Shape bbox = rectangle_create(0, mbbX1 - 1, mbbY1 - 1, mbbX2 - mbbX1 + 2, mbbY2 - mbbY1 + 2, "red", "none", 1);
     shape_write_to_SVG(aux, bbox);
     shape_destroy(&bbox);
@@ -31,8 +30,8 @@ void c(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     fscanf(geo_file, "%d %lf %lf %lf %s %s\n", &id, &x, &y, &r, border_color, fill_color);
 
     Shape new_circle = circle_create(id, x, y, r, border_color, fill_color, 0);
-    Data fish = data_create(new_circle, 5);
-    insertSRB(sea, x, y, x - r, y - r, x + r, y + r, fish);
+    // Data fish = data_create(new_circle, 5);
+    insertSRB(sea, x, y, x - r, y - r, x + r, y + r, new_circle);
 }
 
 void l(SRBTree sea, FILE* geo_file, FILE* svg_file) {
@@ -61,8 +60,8 @@ void l(SRBTree sea, FILE* geo_file, FILE* svg_file) {
         y2 = aux;
     }
 
-    Data shrimp = data_create(new_line, 1);
-    insertBbSRB(sea, x1, y1, x2, y2, shrimp);
+    // Data shrimp = data_create(new_line, 1);
+    insertBbSRB(sea, x1, y1, x2, y2, new_line);
 }
 
 void r(SRBTree sea, FILE* geo_file, FILE* svg_file) {
@@ -79,8 +78,8 @@ void r(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     fscanf(geo_file, "%d %lf %lf %lf %lf %s %s\n", &id, &x, &y, &w, &h, border_color, fill_color);
 
     Shape new_rectangle = rectangle_create(id, x, y, w, h, border_color, fill_color, 0);
-    Data boat = data_create(new_rectangle, 0);
-    insertBbSRB(sea, x, y, x + w, y + h, boat);
+    // Data boat = data_create(new_rectangle, 0);
+    insertBbSRB(sea, x, y, x + w, y + h, new_rectangle);
 }
 
 void t(SRBTree sea, FILE* geo_file, FILE* svg_file) {
@@ -101,15 +100,15 @@ void t(SRBTree sea, FILE* geo_file, FILE* svg_file) {
     text[strcspn(text, "\r\n")] = '\0';
 
     Shape new_text = text_create(id, x, y, 8, border_color, fill_color, alignment, text);
-    Data item = data_create(new_text, 0);
+    // Data item = data_create(new_text, 0);
     if (strcmp(text, ">-|-<") == 0) {
         shape_set_text(new_text, "&gt;-|-&lt;");
-        data_set_value(item, 20);
+        // data_set_value(item, 20);
     } else if (strcmp(text, "$") == 0) {
-        data_set_value(item, 0.5);
+        // data_set_value(item, 0.5);
     }
 
-    insertSRB(sea, x, y, x - 2.3 * strlen(text), y - 7, x + 2.4 * strlen(text), y + 3, item);
+    insertSRB(sea, x, y, x - 2.3 * strlen(text), y - 7, x + 2.4 * strlen(text), y + 3, new_text);
 }
 
 void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree sea) {
@@ -120,6 +119,9 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree sea) {
     char geo_path[PATH_MAX];
     sprintf(geo_path, "%s%s%s", BED, BED[strlen(BED) - 1] == '/' ? "" : "/", geo_name);
     FILE* geo_file = fopen(geo_path, "r");
+    if (!geo_file) {
+        return;
+    }
 
     if (strrchr(geo_name, '/')) {
         geo_name = strrchr(geo_name, '/') + 1;

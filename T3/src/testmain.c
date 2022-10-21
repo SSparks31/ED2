@@ -2,49 +2,26 @@
 #include <stdlib.h>
 
 #include "srbTree.h"
+#include "geo.h"
+#include "qry.h"
+
 
 int main() {
-    SRBTree t = createSRB(0.01);
+    SRBTree t = createSRB(0.001);
+    
+    geo_parser("../Testes", "../Output", "04-mar-grande.geo", t);
 
-    insertBbSRB(t, 1, 0, 0, 0, NULL);
-    insertBbSRB(t, 2, 0, 0, 0, NULL);
-    insertBbSRB(t, 3, 0, 0, 0, NULL);
-    insertBbSRB(t, 4, 0, 0, 0, NULL);
-    insertBbSRB(t, 5, 0, 0, 0, NULL);
-    insertBbSRB(t, 6, 0, 0, 0, NULL);
-    insertBbSRB(t, 7, 0, 0, 0, NULL);
-    insertBbSRB(t, 8, 0, 0, 0, NULL);
-    insertBbSRB(t, 9, 0, 0, 0, NULL);
-    insertBbSRB(t, 10, 0, 0, 0, NULL);
-    insertBbSRB(t, 11, 0, 0, 0, NULL);
-    insertBbSRB(t, 12, 0, 0, 0, NULL);
-    insertBbSRB(t, 13, 0, 0, 0, NULL);
-    insertBbSRB(t, 14, 0, 0, 0, NULL);
-    insertBbSRB(t, 15, 0, 0, 0, NULL);
-    insertBbSRB(t, 16, 0, 0, 0, NULL);
-    insertBbSRB(t, 17, 0, 0, 0, NULL);
-    insertBbSRB(t, 18, 0, 0, 0, NULL);
-    insertBbSRB(t, 19, 0, 0, 0, NULL);
+    removeSRB(t, 53.52,  195.52, NULL, NULL, NULL, NULL);
+    removeSRB(t, 100.61, 196.61, NULL, NULL, NULL, NULL);
+    removeSRB(t, 190.94, 256.53, NULL, NULL, NULL, NULL);
+    removeSRB(t, 196.36,  91.53, NULL, NULL, NULL, NULL);
+    removeSRB(t, 262.14, 140.19, NULL, NULL, NULL, NULL);
+    removeSRB(t, 266.19,  73.01, NULL, NULL, NULL, NULL);
+    removeSRB(t, 272.67, 150.78, NULL, NULL, NULL, NULL);
+    removeSRB(t, 343.52, 235.69, NULL, NULL, NULL, NULL);
+    removeSRB(t, 367.33, 204.13, NULL, NULL, NULL, NULL);
+    removeSRB(t, 380.48, 264.57, NULL, NULL, NULL, NULL);
 
-    insertBbSRB(t, 1, 1, 0, 0, NULL);
-    insertBbSRB(t, 2, 1, 0, 0, NULL);
-    insertBbSRB(t, 3, 1, 0, 0, NULL);
-    insertBbSRB(t, 4, 1, 0, 0, NULL);
-    insertBbSRB(t, 5, 1, 0, 0, NULL);
-    insertBbSRB(t, 6, 1, 0, 0, NULL);
-    insertBbSRB(t, 7, 1, 0, 0, NULL);
-    insertBbSRB(t, 8, 1, 0, 0, NULL);
-    insertBbSRB(t, 9, 1, 0, 0, NULL);
-    insertBbSRB(t, 10, 1, 0, 0, NULL);
-    insertBbSRB(t, 11, 1, 0, 0, NULL);
-    insertBbSRB(t, 12, 1, 0, 0, NULL);
-    insertBbSRB(t, 13, 1, 0, 0, NULL);
-    insertBbSRB(t, 14, 1, 0, 0, NULL);
-    insertBbSRB(t, 15, 1, 0, 0, NULL);
-    insertBbSRB(t, 16, 1, 0, 0, NULL);
-    insertBbSRB(t, 17, 1, 0, 0, NULL);
-    insertBbSRB(t, 18, 1, 0, 0, NULL);
-    insertBbSRB(t, 19, 1, 0, 0, NULL);
 
     printSRB(t, "test.dot");
 }
