@@ -289,21 +289,16 @@ Node getNodeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *mbbY1, d
 
     Node n = t->root;
     while (compareSRB(t, xa, n->x) != 0 || compareSRB(t, ya, n->y) != 0) {
-        printf("%.2lf %.2lf | %.2lf %.2lf\n", n->x, xa, n->y, ya);
         if (n == t->NIL) {
             return NULL;
         }
 
         if (compareSRB(t, xa, n->x) <= 0 || (compareSRB(t, xa, n->x) == 0 && compareSRB(t, ya, n->y) < 0)) {
-            printf("Going left\n");
             n = n->left;
         } else {
-            printf("Going right\n");
             n = n->right;
         }
     }
-    printf("%.2lf %.2lf | %.2lf %.2lf\n", n->x, xa, n->y, ya);
-    printf("Found\n");
     return n;    
 }
 
@@ -487,13 +482,15 @@ void percursoLargura(SRBTree t, FvisitaNo fVisita, void *aux) {
     list_append(list, t->root);
 
     while (list_get_size(list) != 0) {
-        List_pos aux = list_get_first(list);
-        Node n = list_get_elem(list, aux);
+        List_pos pos = list_get_first(list);
+        Node n = list_get_elem(list, pos);
 
         if (n->left != t->NIL) list_append(list, n->left);
         if (n->right != t->NIL) list_append(list, n->right);
 
         fVisita(n->elem, n->x, n->y, n->mbb.x1, n->mbb.y1, n->mbb.x2, n->mbb.y2, aux);
+
+        list_remove(list, pos);
     }
 
     list_destroy(&list);
@@ -528,7 +525,7 @@ void recursivoProfundidade(SRBTree t, Node n, FvisitaNo fVisita, void *aux) {
 }
 
 void percursoProfundidade(SRBTree t, FvisitaNo fVisita, void *aux) {
-        if (!t || !fVisita || t->root == t->NIL) {
+    if (!t || !fVisita || t->root == t->NIL) {
         return;
     }
 

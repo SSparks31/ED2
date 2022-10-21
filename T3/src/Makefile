@@ -10,7 +10,7 @@ ted: main.c data.o geo.o qry.o list.o srbTree.o svg.o
 .PHONY: clean test testmain
 
 test: ted
-	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output -q 01-mar-pequeno-1par-naus/01-mv1-001-cmr.qry
+	./ted -e ../Testes -f 01-mar-pequeno-1par-naus.geo -o ../Output -q 01-mar-pequeno-1par-naus/002-mv1-todos.qry
 
 testmain: testmain.c srbTree.o list.o
 	$(CC) $(CFLAGS) -g -o $@ $^ -lm

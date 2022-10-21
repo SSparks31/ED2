@@ -11,6 +11,13 @@
 #include "svg.h"
 #include "data.h"
 
+void qryImprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
+    shape_write_to_SVG(aux, data_get_shape(i));
+    Shape bbox = rectangle_create(0, mbbX1 - 1, mbbY1 - 1, mbbX2 - mbbX1 + 2, mbbY2 - mbbY1 + 2, "red", "none", 1);
+    shape_write_to_SVG(aux, bbox);
+    shape_destroy(&bbox);
+}
+
 struct eInfo {
     double energy;
     FILE* txt_file;
@@ -34,7 +41,83 @@ void e(FILE* qry_file, FILE* txt_file, SRBTree sea) {
     info.energy = energy;
     info.txt_file = txt_file;
     percursoLargura(sea, energize, &info);
-    fprintf(txt_file, "\n");
+}
+
+struct mvInfo {
+    SRBTree t;
+    FILE* txt_file;
+    int id;
+    double dx;
+    double dy;
+    int done;
+};
+
+void mv_(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void *aux) {
+    struct mvInfo* info = aux;
+    if (info->done) {
+        return;
+    }
+
+    Shape shape = data_get_shape(i);
+
+    if (shape_get_id(shape) == info->id) {
+        info->done = 1;
+        removeSRB(info->t, x, y,&mbbX1, &mbbY1,&mbbX2, &mbbY2);
+        
+        switch (shape_get_type(shape)) {
+        case SVG_RECTANGLE :
+            fprintf(info->txt_file, "\tMovendo nau ID %d de (%.2lf %.2lf) para (%.2lf %.2lf)\n", info->id, x, y, x + info->dx, y + info->dy);
+            shape_set_coordinate(shape, 0, x + info->dx);
+            shape_set_coordinate(shape, 1, y + info->dy);
+            insertSRB(info->t, x + info->dx, y + info->dy, mbbX1 + info->dx, mbbY1 + info->dy, mbbX2 + info->dx, mbbY2 + info->dy, i);
+            break;
+        case SVG_CIRCLE:
+            fprintf(info->txt_file, "\tMovendo peixe ID %d de (%.2lf %.2lf) para (%.2lf %.2lf)\n", info->id, x, y, x + info->dx, y + info->dy);
+            shape_set_coordinate(shape, 0, x + info->dx);
+            shape_set_coordinate(shape, 1, y + info->dy);
+            insertSRB(info->t, x + info->dx, y + info->dy, mbbX1 + info->dx, mbbY1 + info->dy, mbbX2 + info->dx, mbbY2 + info->dy, i);
+            break;
+        case SVG_LINE:
+            fprintf(info->txt_file, "\tMovendo camarao ID %d de (%.2lf %.2lf) para (%.2lf %.2lf)\n", info->id, mbbX1, mbbY1, mbbX1 + info->dx, mbbY1 + info->dy);
+            shape_set_coordinate(shape, 0, mbbX1 + info->dx);
+            shape_set_coordinate(shape, 1, mbbY1 + info->dy);
+            shape_set_coordinate(shape, 2, mbbX2 + info->dx);
+            shape_set_coordinate(shape, 3, mbbY2 + info->dy);
+            insertSRB(info->t, x + info->dx, y + info->dy, mbbX1 + info->dx, mbbY1 + info->dy, mbbX2 + info->dx, mbbY2 + info->dy, i);
+            break;
+        case SVG_TEXT:
+            if (strcmp(shape_get_text(shape), ">-|-<") == 0) {
+                fprintf(info->txt_file, "\tMovendo lagosta ");
+            } else {
+                fprintf(info->txt_file, "\tMovendo lixo ");
+            }
+
+            fprintf(info->txt_file, "ID %d de (%.2lf %.2lf) para (%.2lf %.2lf)\n", info->id, x, y, x + info->dx, y + info->dy);
+            shape_set_coordinate(shape, 0, mbbX1 + info->dx);
+            shape_set_coordinate(shape, 1, mbbY1 + info->dy);
+            insertSRB(info->t, x + info->dx, y + info->dy, mbbX1 + info->dx, mbbY1 + info->dy, mbbX2 + info->dx, mbbY2 + info->dy, i);
+
+            break;
+        }
+    }
+}
+
+void mv(FILE* qry_file, FILE* txt_file, SRBTree sea) {
+    fprintf(txt_file, "=== MV ===\n");
+    
+    int id;
+    double dx, dy;
+    fscanf(qry_file, " %d %lf %lf\n", &id, &dx, &dy);
+
+    struct mvInfo info;
+    info.t = sea;
+    info.txt_file = txt_file;
+    info.id = id;
+    info.dx = dx;
+    info.dy = dy;
+    info.done = 0;
+
+    percursoSimetrico(sea, mv_, &info);
 }
 
 void qry_parser(char* BED, char* BSD, char* geo_name, char* qry_name, SRBTree sea) {    
@@ -64,10 +147,11 @@ void qry_parser(char* BED, char* BSD, char* geo_name, char* qry_name, SRBTree se
     
     char command[999];
     while (fscanf(qry_file, "%s", command) != EOF) {
+        printf("%s\n", command);
         if (strcmp(command, "e") == 0) {
             e(qry_file, txt_file, sea);
         } else if (strcmp(command, "mv") == 0) {
-            
+            mv(qry_file, txt_file, sea);
         } else if (strcmp(command, "lr") == 0) {
             
         } else if (strcmp(command, "d") == 0) {
@@ -79,6 +163,8 @@ void qry_parser(char* BED, char* BSD, char* geo_name, char* qry_name, SRBTree se
             fgets(command, 999, qry_file);
         }
     }
+
+    percursoSimetrico(sea, qryImprimeFormas, svg_file);
 
     fprintf(svg_file, "</svg>");
 

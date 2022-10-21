@@ -11,11 +11,11 @@
 #include "svg.h"
 
 
-void imprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
+void geoImprimeFormas(SRBTree_elem i, double x, double y, double mbbX1, double mbbY1, double mbbX2, double mbbY2, void* aux) {
     shape_write_to_SVG(aux, data_get_shape(i));
-    // Shape bbox = rectangle_create(0, mbbX1 - 1, mbbY1 - 1, mbbX2 - mbbX1 + 1, mbbY2 - mbbY1 + 1, "red", "none", 1);
-    // shape_write_to_SVG(aux, bbox);
-    // shape_destroy(&bbox);
+    Shape bbox = rectangle_create(0, mbbX1 - 1, mbbY1 - 1, mbbX2 - mbbX1 + 2, mbbY2 - mbbY1 + 2, "red", "none", 1);
+    shape_write_to_SVG(aux, bbox);
+    shape_destroy(&bbox);
 }
 
 void c(SRBTree sea, FILE* geo_file, FILE* svg_file) {
@@ -109,7 +109,7 @@ void t(SRBTree sea, FILE* geo_file, FILE* svg_file) {
         data_set_value(item, 0.5);
     }
 
-    insertSRB(sea, x, y, x - 3 * strlen(text), y - 7, x + 3 * strlen(text), y + 3, item);
+    insertSRB(sea, x, y, x - 2.3 * strlen(text), y - 7, x + 2.4 * strlen(text), y + 3, item);
 }
 
 void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree sea) {
@@ -159,7 +159,7 @@ void geo_parser(char* BED, char* BSD, char* geo_name, SRBTree sea) {
         }   
     }
 
-    percursoLargura(sea, imprimeFormas, svg_file);
+    percursoSimetrico(sea, geoImprimeFormas, svg_file);
 
     fprintf(svg_file, "</svg>");
 
