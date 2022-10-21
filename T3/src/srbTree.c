@@ -420,7 +420,7 @@ SRBTree_elem removeSRB(SRBTree t, double xa, double ya, double *mbbX1, double *m
         y->color = z->color;
     }
 
-    if (y->color == BLACK) {
+    if (y_color == BLACK) {
         fixDelete(t, x);
     }
 
